@@ -19,7 +19,7 @@
 | User Pool ID | `eu-central-1_QTI9GPqq3` |
 | App client ID | `5ejvgg30eac9icrkis1l0q4s0r` (public client, без секрета) |
 | Домен страницы входа | `https://eu-central-1qti9gpqq3.auth.eu-central-1.amazoncognito.com` |
-| Callback / sign-out URL | `http://localhost:5173` |
+| Callback / sign-out URL | `https://av-masia.github.io/AWS/` и `http://localhost:5173` |
 | Scopes | `openid`, `email` |
 
 Ресурсы созданы через консоль AWS, мастером `Create user pool → Define your application →
@@ -79,16 +79,19 @@ dev-сервера.
 - [`web/src/App.tsx`](web/src/App.tsx) — кнопки входа/выхода, защищённый экран, вывод claims
 - [`docs/plans/cognito-idp-demo.md`](docs/plans/cognito-idp-demo.md) — рабочий план с историей решений
 
-## Скриншоты
+## Живое демо
 
-| Экран | Файл |
-|---|---|
-| Страница входа Cognito (домен `*.amazoncognito.com` в адресной строке) | `docs/img/01-login.png` |
-| Письмо с кодом подтверждения | `docs/img/02-code.png` |
-| Защищённая страница: email + claims из ID-токена | `docs/img/03-signed-in.png` |
-| Authentication flows в app client | `docs/img/04-auth-flows.png` |
-| Сравнение feature plans (Lite / Essentials / Plus) | `docs/img/05-plans.png` |
-| Billing → Free tier | `docs/img/06-free-tier.png` |
+**https://av-masia.github.io/AWS/**
+
+Открывается без установки: нажать «Войти» → зарегистрироваться на любой email → код
+приходит письмом (проверить папку «Спам», отправитель `no-reply@verificationemail.com`) →
+после входа видны email и claims из ID-токена.
+
+Страница собирается и публикуется автоматически из ветки `main` —
+[`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+
+В app client Cognito разрешены два адреса возврата: публичный и `http://localhost:5173`
+для локальной разработки.
 
 ---
 
@@ -215,6 +218,5 @@ MAU — monthly active user, пользователь, совершивший х
 
 - продакшн-рассылка через Amazon SES со своим доменом вместо дефолтного отправителя
 - MFA, свой домен для страницы входа, кастомный брендинг
-- публичный хостинг (демо на `localhost`)
 - IaC: те же ресурсы через Terraform или CDK
 - Lambda-триггер `Pre token generation` для кастомных claims в токене
