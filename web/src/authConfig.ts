@@ -35,7 +35,10 @@ export const oidcConfig: AuthProviderProps = {
   client_id: cognito.clientId ?? '',
   redirect_uri: cognito.redirectUri,
   response_type: 'code',
-  scope: 'openid email profile',
+  // Только то, что реально нужно: openid — обязателен для OIDC, email — для отображения
+  // пользователя. profile в app client не разрешён и не нужен: пул собирает лишь email,
+  // так что имя/фамилия в токене всё равно были бы пустыми.
+  scope: 'openid email',
   // Иначе сессия теряется при перезагрузке страницы
   userStore: new WebStorageStateStore({ store: window.localStorage }),
   // Убираем ?code=...&state=... из адресной строки после возврата из Cognito
