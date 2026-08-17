@@ -1,0 +1,108 @@
+import { useAuth } from 'react-oidc-context'
+import { cognito, isConfigured, missingConfig, signOutRedirect } from './authConfig'
+import './auth-ui.css'
+
+function Setup() {
+  return (
+    <main className="card">
+      <h1>Нужен конфиг Cognito</h1>
+      <p>
+        Скопируй <code>.env.example</code> в <code>.env.local</code> и заполни значениями
+        из созданного User Pool. Не хватает:
+      </p>
+      <ul>
+        {missingConfig.map((name) => (
+          <li key={name}>
+            <code>{name}</code>
+          </li>
+        ))}
+      </ul>
+      <p className="muted">После правки .env.local перезапусти dev-сервер.</p>
+    </main>
+  )
+}
+
+function Claims({ claims }: { claims: Record<string, unknown> }) {
+  return (
+    <table className="claims">
+      <tbody>
+        {Object.entries(claims).map(([key, value]) => (
+          <tr key={key}>
+            <th>{key}</th>
+            <td>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
+function App() {
+  const auth = useAuth()
+
+  if (!isConfigured) return <Setup />
+
+  if (auth.isLoading) {
+    return (
+      <main className="card">
+        <p>Загрузка…</p>
+      </main>
+    )
+  }
+
+  if (auth.error) {
+    return (
+      <main className="card">
+        <h1>Ошибка авторизации</h1>
+        <pre className="error">{auth.error.message}</pre>
+        <p className="muted">
+          Частая причина — callback URL в app client Cognito не совпадает с{' '}
+          <code>{cognito.redirectUri}</code> посимвольно.
+        </p>
+        <button type="button" onClick={() => void auth.signinRedirect()}>
+          Попробовать снова
+        </button>
+      </main>
+    )
+  }
+
+  if (!auth.isAuthenticated) {
+    return (
+      <main className="card">
+        <h1>Демо: логин через Amazon Cognito</h1>
+        <p className="muted">Authorization code + PKCE, вход на стороне Cognito.</p>
+        <button type="button" onClick={() => void auth.signinRedirect()}>
+          Войти
+        </button>
+      </main>
+    )
+  }
+
+  const profile = auth.user?.profile
+
+  return (
+    <main className="card">
+      <h1>Вход выполнен</h1>
+      <p className="email">{String(profile?.email ?? '—')}</p>
+
+      <h2>Claims из ID-токена</h2>
+      <Claims claims={(profile ?? {}) as Record<string, unknown>} />
+
+      <details>
+        <summary>Сырой ID-токен</summary>
+        <pre className="token">{auth.user?.id_token}</pre>
+      </details>
+
+      <button
+        type="button"
+        onClick={() => {
+          void auth.removeUser().then(signOutRedirect)
+        }}
+      >
+        Выйти
+      </button>
+    </main>
+  )
+}
+
+export default App
