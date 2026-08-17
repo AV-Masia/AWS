@@ -56,8 +56,10 @@ function App() {
         <h1>Ошибка авторизации</h1>
         <pre className="error">{auth.error.message}</pre>
         <p className="muted">
-          Частая причина — callback URL в app client Cognito не совпадает с{' '}
-          <code>{cognito.redirectUri}</code> посимвольно.
+          Частые причины: <code>redirect_mismatch</code> — callback URL в app client Cognito
+          не совпадает с <code>{cognito.redirectUri}</code> посимвольно;{' '}
+          <code>invalid_scope</code> — запрошенный scope не разрешён в app client
+          (раздел App clients → Login pages → OpenID Connect scopes).
         </p>
         <button type="button" onClick={() => void auth.signinRedirect()}>
           Попробовать снова
