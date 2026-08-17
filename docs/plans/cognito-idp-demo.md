@@ -109,7 +109,8 @@
       Фактически лёг машинно, в `C:\Program Files\nodejs` (не user-scope). PATH подхватится
       только в новом терминале; в уже открытом — разово
       `$env:PATH = "C:\Program Files\nodejs;$env:PATH"`
-- [ ] Аккаунт AWS с правами администратора — **решено: регистрируем новый личный**.
+- [x] Аккаунт AWS с правами администратора — **зарегистрирован новый личный**,
+      Free plan действует до 17.02.2027.
       Порядок: email + пароль root → контакты (Personal) → карта → SMS-верификация →
       support plan **Basic (free)** → account plan **Free plan** → письмо «Your AWS Account is Ready».
       На root-пользователя AWS потребует включить MFA — проще всего passkey в браузере.
@@ -123,7 +124,9 @@
 - [x] Создан User Pool **`eu-central-1_QTI9GPqq3`**: sign-in по email, self-registration включена.
       Ловушка: в консоли рядом лежит мастер **Identity pool** — это другой сервис (обмен токена
       на временные ключи AWS), нам нужен именно **User pool**
-- [ ] По ходу выписать все предложенные типы аутентификации — это отдельный пункт задания
+- [x] Типы аутентификации выписаны — раздел в README. Фактически включены в app client:
+      `ALLOW_USER_SRP_AUTH`, `ALLOW_USER_AUTH`, `ALLOW_REFRESH_TOKEN_AUTH`;
+      выключены `ALLOW_USER_PASSWORD_AUTH`, `ALLOW_ADMIN_USER_PASSWORD_AUTH`, `ALLOW_CUSTOM_AUTH`
 - [x] Создан app client **`5ejvgg30eac9icrkis1l0q4s0r`** через мастер
       `Define your application → Single-page application (SPA)` — сразу public client без секрета,
       grant type `Authorization code`
@@ -137,8 +140,11 @@
       всё равно были бы пустыми) — принцип наименьших привилегий, в отчёт
 - [x] Домен managed login создан мастером автоматически:
       `https://eu-central-1qti9gpqq3.auth.eu-central-1.amazoncognito.com`
-- [ ] Заглянуть в селектор feature plan (Lite / Essentials / Plus) и в Billing → Free tier —
-      это закрывает вопрос заказчика «какие есть подписки в кабинете AWS»; скриншот в отчёт
+- [~] Вопрос «какие есть подписки в кабинете AWS» закрыт текстом в README: разобраны оба
+      уровня — план аккаунта (Free / Paid) и feature plan пула (Lite / Essentials / Plus).
+      **Хвост:** feature plan пула в README указан как Essentials по косвенному признаку
+      (включён `ALLOW_USER_AUTH`, доступный только с Essentials), прямой проверкой
+      в консоли не подтверждён. Скриншоты отменены — заменены живым демо
 - [x] Проверка: `/oauth2/authorize` со scope `openid email` отдаёт 302 на `/login` —
       форма входа поднимается
 - [x] Проверка конфига для фронта: открыть
@@ -160,12 +166,14 @@
 
 ### 3. Оформить результат (~20 мин)
 
-- [ ] README **в корне репозитория** (`README.md`): что поднято, как запустить, скриншоты флоу.
-      `web/README.md` — до сих пор дефолтный шаблон Vite, его не читать как отчёт
-- [ ] Раздел про типы аутентификации Cognito и почему выбран code+PKCE
-- [ ] Раздел про стоимость (таблица выше) + скриншот тарифов из кабинета
-- [ ] Коммиты в ветку `plan` (не `plane` — фактическое имя ветки), upstream уже есть
-      (`origin/plan`, первый коммит `efb2d3e`), пушится обычным `git push`
+- [x] README **в корне репозитория** — что поднято, схема флоу, как запустить, грабли.
+      Скриншоты флоу заменены на живое демо: https://av-masia.github.io/AWS/
+- [x] Раздел про типы аутентификации Cognito и почему выбран code+PKCE
+- [x] Раздел про стоимость + разбор тарифов в кабинете (без скриншота, см. выше)
+- [x] Коммиты в ветку `plan`, PR #1 и #2 смержены в `main`
+- [x] `[сверх плана]` Публикация на GitHub Pages — деплой из `main` через Actions.
+      Проверено: страница 200, ассеты 200, в сборке зашит публичный `redirect_uri`,
+      callback и logout в Cognito отвечают без `redirect_mismatch`
 - [ ] Пингануть Андрея
 
 ### 4. `[опционально]` Предвосхитить задание 2 — Lambda-триггер
