@@ -70,11 +70,14 @@ IaC обязателен, ручная настройка через консо�
       `admin-get-user` → `UserNotFoundException`
 - [x] Регистрация с заполненным `phone_confirm` → `UserLambdaValidationException: PreSignUp failed
       with error Automated traffic detected.`, пользователь не создан
-- [~] Регистрация быстрее 1.5 с → блок. Проверено локальными тестами (`node --test`, 9 из 9),
-      включая границу. **Через живой API не проверить:** сам AWS CLI стартует ~2 секунды, и Lambda
-      честно видит «форму заполняли 2002 мс». Настоящая проверка — из браузера на шаге 6
-- [ ] Честная регистрация (honeypot пуст, > 1.5 с) проходит: письмо с кодом → `ConfirmSignUp` → вход.
-      **Нужен реальный ящик** — делаем вместе на шаге 6
+- [x] Регистрация быстрее 1.5 с → `UserLambdaValidationException: PreSignUp failed with error
+      Automated traffic detected.` Проверено на живом API через `scripts/signup-probe.mjs`
+      (SDK, timestamp формируется в том же процессе): 200 мс → отказ.
+      Через `aws cli` этот сценарий не проверяется вообще: он сам стартует ~3 секунды, и Lambda
+      честно видит «форму заполняли 3 с». Границы добраны локальными тестами (`node --test`, 9 из 9)
+- [x] Честная регистрация проходит целиком: `SignUp` (форма заполнялась 5 с) → код письмом на
+      реальный ящик → `ConfirmSignUp` → `InitiateAuth` отдаёт токены, статус `CONFIRMED`,
+      `email_verified: true`
 - [x] Логи обеих Lambda — JSON: `level`, `service`, `function_request_id`, `triggerSource`, `cold_start`.
       Работает благодаря `logging_config { log_format = "JSON" }`
 - [x] Инициализация вне handler подтверждена: **одна** запись `init` (`secret_loaded`, `pool_created`,
