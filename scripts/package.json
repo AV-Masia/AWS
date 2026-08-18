@@ -1,0 +1,15 @@
+{
+  "name": "legacy-db-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Сев и проверка legacy PostgreSQL — запускается с машины разработчика, не в Lambda",
+  "scripts": {
+    "seed": "node seed.mjs",
+    "check": "node check.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
+    "bcryptjs": "^3.0.2",
+    "pg": "^8.13.1"
+  }
+}

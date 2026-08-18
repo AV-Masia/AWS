@@ -1,0 +1,4 @@
+# Скопировать в terraform.tfvars и подставить свой внешний IP:
+#   curl -s https://checkip.amazonaws.com
+# Он получит доступ к порту 5432 legacy-БД — больше никто из интернета.
+my_ip = "203.0.113.10"

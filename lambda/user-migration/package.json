@@ -1,0 +1,12 @@
+{
+  "name": "user-migration-trigger",
+  "private": true,
+  "type": "module",
+  "description": "Cognito User Migration trigger: проверяет пароль в legacy PostgreSQL",
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.13.0",
+    "@aws-sdk/client-secrets-manager": "^3.700.0",
+    "bcryptjs": "^3.0.2",
+    "pg": "^8.13.1"
+  }
+}

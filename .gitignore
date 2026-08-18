@@ -1,0 +1,4 @@
+# Сборки Lambda-пакетов и зависимости функций
+infra/build/
+lambda/*/node_modules/
+scripts/node_modules/
