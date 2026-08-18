@@ -1,16 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from 'react-oidc-context'
 import { cognito, isConfigured, missingConfig, signOutRedirect } from './authConfig'
 import { LegacyDemo } from './legacy/LegacyDemo'
+import { SignUpForm } from './legacy/SignUpForm'
 import './auth-ui.css'
 
 function Setup() {
   return (
-    <section>
-      <h2>Нужен конфиг Cognito</h2>
+    <main className="card">
+      <h1>Нужен конфиг Cognito</h1>
       <p>
-        Скопируй <code>.env.example</code> в <code>.env.local</code> и заполни значениями
-        из созданного User Pool. Не хватает:
+        Скопируй <code>.env.example</code> в <code>.env.local</code> и заполни значениями из{' '}
+        <code>terraform output</code>. Не хватает:
       </p>
       <ul>
         {missingConfig.map((name) => (
@@ -20,7 +21,7 @@ function Setup() {
         ))}
       </ul>
       <p className="muted">После правки .env.local перезапусти dev-сервер.</p>
-    </section>
+    </main>
   )
 }
 
@@ -39,11 +40,9 @@ function Claims({ claims }: { claims: Record<string, unknown> }) {
   )
 }
 
-/** Задание 1: вход на странице Cognito по OIDC Authorization code + PKCE. */
-function OidcDemo() {
+/** Вход на странице Cognito: OIDC Authorization code + PKCE. */
+function HostedUiSignIn() {
   const auth = useAuth()
-
-  if (!isConfigured) return <Setup />
 
   if (auth.isLoading) return <p>Загрузка…</p>
 
@@ -53,10 +52,9 @@ function OidcDemo() {
         <h2>Ошибка авторизации</h2>
         <pre className="error">{auth.error.message}</pre>
         <p className="muted">
-          Частые причины: <code>redirect_mismatch</code> — callback URL в app client Cognito
-          не совпадает с <code>{cognito.redirectUri}</code> посимвольно;{' '}
-          <code>invalid_scope</code> — запрошенный scope не разрешён в app client
-          (раздел App clients → Login pages → OpenID Connect scopes).
+          Частые причины: <code>redirect_mismatch</code> — callback URL в app client не совпадает
+          с <code>{cognito.redirectUri}</code> посимвольно; <code>invalid_scope</code> — запрошенный
+          scope не разрешён в app client.
         </p>
         <button type="button" onClick={() => void auth.signinRedirect()}>
           Попробовать снова
@@ -68,18 +66,20 @@ function OidcDemo() {
   if (!auth.isAuthenticated) {
     return (
       <section>
+        <h2>Вход на странице Cognito</h2>
         <p className="muted">
-          Authorization code + PKCE: пароль вводится на домене Cognito, приложение его не видит
-          никогда и получает только подписанный токен.
+          Приложение отправляет пользователя на домен Cognito, тот сам показывает форму, обрабатывает
+          регистрацию, коды подтверждения и восстановление пароля, а возвращает подписанный токен.
+          Пароль в наше приложение не попадает никогда — в этом и смысл выноса аутентификации в IDP.
         </p>
-        <p className="warning">
-          Это отдельный пул задания 1 (<code>{cognito.userPoolId}</code>) — без Lambda-триггеров.
-          Легаси-пользователи <code>userNN@example.com</code> здесь <strong>не войдут</strong>:
-          миграция живёт в пуле задания 2, на вкладке выше. Кнопка ниже уводит на страницу входа
-          Cognito, и это нормально — так работает задание 1.
+        <p className="hint">
+          Authorization code + PKCE: приложение заранее генерирует случайный verifier, отправляет
+          в Cognito его хэш, а код меняет на токены, предъявив оригинал. Перехваченный код без
+          verifier бесполезен — для SPA это обязательная практика, потому что секрет клиента
+          в браузере спрятать негде.
         </p>
         <button type="button" onClick={() => void auth.signinRedirect()}>
-          Войти
+          Войти через Cognito
         </button>
       </section>
     )
@@ -113,32 +113,59 @@ function OidcDemo() {
 }
 
 const TABS = [
-  { id: 'legacy', label: 'Задание 2: миграция и honeypot' },
-  { id: 'oidc', label: 'Задание 1: логин через Cognito' },
+  { id: 'migration', label: 'Вход из старой базы', hint: 'триггер User Migration' },
+  { id: 'signup', label: 'Регистрация', hint: 'триггер Pre Sign-up, honeypot' },
+  { id: 'hosted', label: 'Страница входа Cognito', hint: 'OIDC code + PKCE' },
 ] as const
 
+type TabId = (typeof TABS)[number]['id']
+
 function App() {
-  // По умолчанию — задание 2: это то, что сдаётся сейчас
-  const [tab, setTab] = useState<(typeof TABS)[number]['id']>('legacy')
+  const auth = useAuth()
+  const [tab, setTab] = useState<TabId>('migration')
+
+  // После возврата с редиректа показываем результат, а не форму миграции
+  useEffect(() => {
+    if (auth.isAuthenticated) setTab('hosted')
+  }, [auth.isAuthenticated])
+
+  if (!isConfigured) return <Setup />
 
   return (
     <main className="card">
-      <h1>AWS Cognito: демо тестовых заданий</h1>
+      <h1>AWS Cognito: миграция без сброса паролей и защита от ботов</h1>
+      <p className="muted">
+        Один User Pool, поднятый Terraform, и три способа войти в него. Первые два — свои формы
+        приложения, они нужны для Lambda-триггеров; третий — готовая страница входа Cognito.
+      </p>
 
       <nav className="tabs">
-        {TABS.map(({ id, label }) => (
+        {TABS.map(({ id, label, hint }) => (
           <button
             key={id}
             type="button"
             className={tab === id ? 'tab active' : 'tab'}
             onClick={() => setTab(id)}
+            title={hint}
           >
             {label}
           </button>
         ))}
       </nav>
 
-      {tab === 'legacy' ? <LegacyDemo /> : <OidcDemo />}
+      {tab === 'migration' && <LegacyDemo />}
+      {tab === 'signup' && (
+        <section>
+          <h2>Регистрация с невидимой защитой от ботов</h2>
+          <SignUpForm />
+        </section>
+      )}
+      {tab === 'hosted' && <HostedUiSignIn />}
+
+      <p className="hint">
+        Пул <code>{cognito.userPoolId}</code>, регион <code>{cognito.region}</code>. Оба Lambda-триггера
+        висят на этом же пуле, поэтому вход из старой базы работает и здесь, и на странице Cognito.
+      </p>
     </main>
   )
 }
