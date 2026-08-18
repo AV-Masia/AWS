@@ -6,8 +6,10 @@ import { decodeJwt, signIn, type Tokens } from './cognito'
  * Первый вход проходит через триггер миграции, дальше пользователь живёт в Cognito.
  */
 export function LegacySignIn() {
-  const [email, setEmail] = useState('user07@example.com')
-  const [password, setPassword] = useState('LegacyPass07!')
+  // Подставлен пользователь, которого ещё нет в Cognito, — иначе демо покажет
+  // обычный вход вместо миграции. Уже смигрировавших видно в консоли пула
+  const [email, setEmail] = useState('user12@example.com')
+  const [password, setPassword] = useState('LegacyPass12!')
   const [busy, setBusy] = useState(false)
   const [elapsed, setElapsed] = useState<number | null>(null)
   const [tokens, setTokens] = useState<Tokens | null>(null)

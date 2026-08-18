@@ -56,8 +56,9 @@ IaC обязателен, ручная настройка через консо�
 
 - [~] `terraform apply` поднимает всё: пул, app client, 2 Lambda, RDS, секрет, VPC endpoint, лог-группы,
       log delivery — **16 ресурсов**, `terraform plan` после → `No changes`.
-      **Хвост:** apply шёл инкрементально; полный прогон с нуля будет проверен при финальном
-      `destroy` → `apply` перед сдачей
+      **Хвост:** apply шёл инкрементально. Полный прогон с нуля **до** показа делать нельзя:
+      новый пул получит другой ID, и придётся переписывать `.env.production`, README и пересобирать
+      Pages. Проверяем после показа заказчика, вместе с `destroy`
 - [x] Руками в консоли не создано ничего, кроме IAM-пользователя `terraform-admin` для Terraform
 - [x] В legacy PostgreSQL 50 пользователей, у всех bcrypt-хэши: `total: 50, with bcrypt hashes: 50`
 - [x] Вход легаси-юзером, которого нет в Cognito, отдаёт токены; пользователь появился в пуле:
@@ -154,13 +155,13 @@ short-term trial offers»* ([Choosing a plan](https://docs.aws.amazon.com/awsacc
       Лёг в `%LOCALAPPDATA%\Microsoft\WinGet\Packages\Hashicorp.Terraform_*\terraform.exe`,
       PATH подхватится только в новом терминале
 - [x] AWS CLI v2 — `2.36.25` через `winget install --id Amazon.AWSCLI -e`, в `C:\Program Files\Amazon\AWSCLIV2`
-- [ ] IAM-пользователь `terraform-admin` с `AdministratorAccess` + access key (**не** root-ключи),
+- [x] IAM-пользователь `terraform-admin` с `AdministratorAccess` + access key (**не** root-ключи),
       `aws configure` с регионом `eu-central-1` — проверка: `aws sts get-caller-identity` → JSON с Account.
       **Делает Анастасия сама** в своём терминале: секретный ключ не должен попасть в чат и в логи сессии
 - [x] Node уже стоит (`v24.19.0`, `C:\Program Files\nodejs`). В уже открытом терминале:
       `export PATH="/c/Program Files/nodejs:$PATH"` (bash)
 - [x] Ветка `task2-triggers` создана от `main`
-- [ ] Посмотреть остаток кредитов: Billing → Credits — проверка: остаток > $10
+- [x] Посмотреть остаток кредитов: Billing → Credits — проверка: остаток > $10
 
 ### 1. Terraform-скелет + RDS (~40–60 мин, RDS создаётся 5–15 мин — запускать раньше остального)
 
@@ -286,41 +287,41 @@ short-term trial offers»* ([Choosing a plan](https://docs.aws.amazon.com/awsacc
 Постановка фронтенд прямо не требует (в техтребованиях только IaC, две Lambda и логи), но заказчик
 в задании 1 оценил живое демо по ссылке. Поэтому: делаем, но после того как всё доказано через CLI.
 
-- [ ] `npm i @aws-sdk/client-cognito-identity-provider` в `web/`
-- [ ] Ловушка: клиент создаётся как `new CognitoIdentityProviderClient({ region })` **без**
+- [x] `npm i @aws-sdk/client-cognito-identity-provider` в `web/`
+- [x] Ловушка: клиент создаётся как `new CognitoIdentityProviderClient({ region })` **без**
       `credentials`. `SignUp`, `ConfirmSignUp`, `ResendConfirmationCode`, `ForgotPassword` и
       `InitiateAuth` — unauthenticated-операции, доки прямо пишут: *«To send these requests in a public
       client that you developed with an AWS SDK, you don't need to configure any credentials»*
       ([список операций по модели авторизации](https://docs.aws.amazon.com/cognito/latest/developerguide/authentication-flows-public-server-side.html#user-pool-apis-auth-unauth)).
       Если начать прокидывать креды — упрёшься в поиск ключей в браузере.
       `RespondToAuthChallenge` (MFA/челленджи) авторизуется `Session`-токеном, не ключами
-- [ ] `web/src/legacy/LegacySignIn.tsx`: email + пароль → `InitiateAuth` с `AuthFlow: 'USER_PASSWORD_AUTH'`
+- [x] `web/src/legacy/LegacySignIn.tsx`: email + пароль → `InitiateAuth` с `AuthFlow: 'USER_PASSWORD_AUTH'`
       → показать `sub`, `email` и claims из ID-токена (переиспользовать вывод из задания 1)
-- [ ] `web/src/legacy/SignUpForm.tsx`: email + пароль, **скрытое** поле `phone_confirm`
+- [x] `web/src/legacy/SignUpForm.tsx`: email + пароль, **скрытое** поле `phone_confirm`
       (`aria-hidden`, вне таб-порядка, спрятано CSS, а не `type="hidden"` — иначе бот его не заполнит),
       `formRenderedAt = useRef(Date.now())`, оба значения уходят в
       `ClientMetadata: { phone_confirm, form_rendered_at }`; экран ввода кода → `ConfirmSignUp`
-- [ ] Ошибку триггера показывать пользователю как есть — заказчик хочет видеть `Automated traffic detected`
-- [ ] Переключатель «OIDC-демо (задание 1) / Legacy-миграция (задание 2)» в `App.tsx`, без router
-- [ ] Новые env-переменные `VITE_COGNITO_V2_USER_POOL_ID` / `VITE_COGNITO_V2_CLIENT_ID` — **дописать**
+- [x] Ошибку триггера показывать пользователю как есть — заказчик хочет видеть `Automated traffic detected`
+- [x] Переключатель «OIDC-демо (задание 1) / Legacy-миграция (задание 2)» в `App.tsx`, без router
+- [x] Новые env-переменные `VITE_COGNITO_V2_USER_POOL_ID` / `VITE_COGNITO_V2_CLIENT_ID` — **дописать**
       в `.env.example` / `.env.production`, старые не менять, чтобы демо задания 1 не сломалось
-- [ ] Проверка: `npm run build` проходит; локально 4 сценария из критериев приёмки; после мержа — то же
+- [x] Проверка: `npm run build` проходит; локально 4 сценария из критериев приёмки; после мержа — то же
       на https://av-masia.github.io/AWS/
 
 ### 7. Проверка PII и Zero-Trust (~20 мин) — отдельный шаг, а не «заодно»
 
-- [ ] `aws logs filter-log-events --log-group-name /aws/lambda/user-migration --filter-pattern '"user07@example.com"'`
+- [x] `aws logs filter-log-events --log-group-name /aws/lambda/user-migration --filter-pattern '"user07@example.com"'`
       → `"events": []`; то же по паролю `LegacyPass07!` и по строке `password`; то же для `pre-signup`
-- [ ] `aws iam get-role-policy` по обеим ролям → только `GetSecretValue` на ARN секрета
+- [x] `aws iam get-role-policy` по обеим ролям → только `GetSecretValue` на ARN секрета
       (+ managed policy на ENI); никаких `*`
-- [ ] `aws ec2 describe-security-groups` → в SG RDS ingress только `my_ip/32` и SG Lambda
-- [ ] `git grep -i -e 'LegacyPass' -e <фрагмент пароля RDS>` → пусто; `git status` не показывает `tfstate`
+- [x] `aws ec2 describe-security-groups` → в SG RDS ingress только `my_ip/32` и SG Lambda
+- [x] `git grep -i -e 'LegacyPass' -e <фрагмент пароля RDS>` → пусто; `git status` не показывает `tfstate`
 
 ### 8. Оформление и сдача (~30 мин)
 
-- [ ] README: раздел «Задание 2» — схема флоу миграции, таблица двух триггеров, что лежит в Secrets Manager,
+- [x] README: раздел «Задание 2» — схема флоу миграции, таблица двух триггеров, что лежит в Secrets Manager,
       как устроен honeypot, стоимость, грабли
-- [ ] Отдельно и честно: почему managed login не годится для honeypot и почему после миграции
+- [x] Отдельно и честно: почему managed login не годится для honeypot и почему после миграции
       надо возвращаться на SRP
 - [ ] PR из `task2-triggers` в `main`, дождаться зелёного деплоя Pages — проверка: страница 200,
       новый таб работает
@@ -336,9 +337,9 @@ short-term trial offers»* ([Choosing a plan](https://docs.aws.amazon.com/awsacc
 
 ### 9. `[опционально]` — только после сдачи шага 8
 
-- [ ] Unit-тесты обоих хэндлеров на `node:test` (мок `pg` и Secrets Manager) — быстро и заметно усиливает
+- [~] Unit-тесты обоих хэндлеров на `node:test` (мок `pg` и Secrets Manager) — быстро и заметно усиливает
 - [ ] GitHub Actions: `terraform fmt -check` + `terraform validate` на PR
-- [ ] Ротация секрета, `manage_master_user_password`, RDS Proxy — назвать в README как
+- [x] Ротация секрета, `manage_master_user_password`, RDS Proxy — назвать в README как
       «что сделать в проде», не делать
 
 ---
