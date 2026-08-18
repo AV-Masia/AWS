@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { useAuth } from 'react-oidc-context'
 import { cognito, isConfigured, missingConfig, signOutRedirect } from './authConfig'
+import { LegacyDemo } from './legacy/LegacyDemo'
 import './auth-ui.css'
 
 function Setup() {
   return (
-    <main className="card">
-      <h1>Нужен конфиг Cognito</h1>
+    <section>
+      <h2>Нужен конфиг Cognito</h2>
       <p>
         Скопируй <code>.env.example</code> в <code>.env.local</code> и заполни значениями
         из созданного User Pool. Не хватает:
@@ -18,7 +20,7 @@ function Setup() {
         ))}
       </ul>
       <p className="muted">После правки .env.local перезапусти dev-сервер.</p>
-    </main>
+    </section>
   )
 }
 
@@ -37,23 +39,18 @@ function Claims({ claims }: { claims: Record<string, unknown> }) {
   )
 }
 
-function App() {
+/** Задание 1: вход на странице Cognito по OIDC Authorization code + PKCE. */
+function OidcDemo() {
   const auth = useAuth()
 
   if (!isConfigured) return <Setup />
 
-  if (auth.isLoading) {
-    return (
-      <main className="card">
-        <p>Загрузка…</p>
-      </main>
-    )
-  }
+  if (auth.isLoading) return <p>Загрузка…</p>
 
   if (auth.error) {
     return (
-      <main className="card">
-        <h1>Ошибка авторизации</h1>
+      <section>
+        <h2>Ошибка авторизации</h2>
         <pre className="error">{auth.error.message}</pre>
         <p className="muted">
           Частые причины: <code>redirect_mismatch</code> — callback URL в app client Cognito
@@ -64,27 +61,29 @@ function App() {
         <button type="button" onClick={() => void auth.signinRedirect()}>
           Попробовать снова
         </button>
-      </main>
+      </section>
     )
   }
 
   if (!auth.isAuthenticated) {
     return (
-      <main className="card">
-        <h1>Демо: логин через Amazon Cognito</h1>
-        <p className="muted">Authorization code + PKCE, вход на стороне Cognito.</p>
+      <section>
+        <p className="muted">
+          Authorization code + PKCE: пароль вводится на домене Cognito, приложение его не видит
+          никогда и получает только подписанный токен.
+        </p>
         <button type="button" onClick={() => void auth.signinRedirect()}>
           Войти
         </button>
-      </main>
+      </section>
     )
   }
 
   const profile = auth.user?.profile
 
   return (
-    <main className="card">
-      <h1>Вход выполнен</h1>
+    <section>
+      <h2>Вход выполнен</h2>
       <p className="email">{String(profile?.email ?? '—')}</p>
 
       <h2>Claims из ID-токена</h2>
@@ -103,6 +102,37 @@ function App() {
       >
         Выйти
       </button>
+    </section>
+  )
+}
+
+const TABS = [
+  { id: 'legacy', label: 'Задание 2: миграция и honeypot' },
+  { id: 'oidc', label: 'Задание 1: логин через Cognito' },
+] as const
+
+function App() {
+  // По умолчанию — задание 2: это то, что сдаётся сейчас
+  const [tab, setTab] = useState<(typeof TABS)[number]['id']>('legacy')
+
+  return (
+    <main className="card">
+      <h1>AWS Cognito: демо тестовых заданий</h1>
+
+      <nav className="tabs">
+        {TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            className={tab === id ? 'tab active' : 'tab'}
+            onClick={() => setTab(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      {tab === 'legacy' ? <LegacyDemo /> : <OidcDemo />}
     </main>
   )
 }
