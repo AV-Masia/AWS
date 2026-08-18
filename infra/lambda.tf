@@ -14,6 +14,9 @@ data "archive_file" "pre_signup" {
   type        = "zip"
   source_dir  = "${path.module}/../lambda/pre-signup"
   output_path = "${path.module}/build/pre-signup.zip"
+
+  # Тесты в рантайме не нужны и только меняли бы хэш пакета при каждой правке
+  excludes = ["test.mjs"]
 }
 
 data "aws_iam_policy_document" "lambda_assume_role" {
