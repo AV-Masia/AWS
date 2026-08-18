@@ -1,0 +1,17 @@
+{
+  "version": "1",
+  "triggerSource": "PreSignUp_SignUp",
+  "region": "eu-central-1",
+  "userPoolId": "eu-central-1_F3JBMc9Ld",
+  "userName": "bot@example.com",
+  "callerContext": { "awsSdkVersion": "aws-sdk-unknown-unknown", "clientId": "jooc52jcone06i98bhme7anno" },
+  "request": {
+    "userAttributes": { "email": "bot@example.com" },
+    "validationData": null,
+    "clientMetadata": {
+      "phone_confirm": "+7 999 000-00-00",
+      "form_rendered_at": "1000000000000"
+    }
+  },
+  "response": { "autoConfirmUser": false, "autoVerifyEmail": false, "autoVerifyPhone": false }
+}

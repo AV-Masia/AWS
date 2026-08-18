@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "triggerSource": "PreSignUp_SignUp",
+  "region": "eu-central-1",
+  "userPoolId": "eu-central-1_F3JBMc9Ld",
+  "userName": "via-managed-login@example.com",
+  "callerContext": { "awsSdkVersion": "aws-sdk-unknown-unknown", "clientId": "jooc52jcone06i98bhme7anno" },
+  "request": {
+    "userAttributes": { "email": "via-managed-login@example.com" },
+    "validationData": null
+  },
+  "response": { "autoConfirmUser": false, "autoVerifyEmail": false, "autoVerifyPhone": false }
+}
