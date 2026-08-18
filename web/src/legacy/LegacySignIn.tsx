@@ -40,6 +40,11 @@ export function LegacySignIn() {
         В старой базе 50 пользователей: <code>user01@example.com</code> … <code>user50@example.com</code>,
         пароль <code>LegacyPassNN!</code> (номер совпадает с логином). В Cognito их нет — до первого входа.
       </p>
+      <p className="hint">
+        Эта форма никуда не редиректит: пароль уходит прямо на API Cognito, а тот спрашивает Lambda.
+        Триггер висит на пуле, а не на форме, поэтому тот же легаси-пользователь въедет и через
+        страницу входа Cognito на третьей вкладке.
+      </p>
 
       <form onSubmit={submit}>
         <label>

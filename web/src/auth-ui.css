@@ -170,3 +170,12 @@ button:disabled {
   height: 1px;
   overflow: hidden;
 }
+
+.warning {
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #7a5d00;
+  background: #241d00;
+  font-size: 0.85rem;
+}

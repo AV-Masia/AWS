@@ -16,9 +16,9 @@ import {
   InitiateAuthCommand,
   SignUpCommand,
 } from '@aws-sdk/client-cognito-identity-provider'
-import { legacyPool } from './config'
+import { cognito } from '../authConfig'
 
-const client = new CognitoIdentityProviderClient({ region: legacyPool.region })
+const client = new CognitoIdentityProviderClient({ region: cognito.region })
 
 export type Tokens = {
   idToken: string
@@ -29,7 +29,7 @@ export type Tokens = {
 export async function signIn(email: string, password: string): Promise<Tokens> {
   const res = await client.send(
     new InitiateAuthCommand({
-      ClientId: legacyPool.clientId,
+      ClientId: cognito.clientId,
       AuthFlow: 'USER_PASSWORD_AUTH',
       AuthParameters: { USERNAME: email, PASSWORD: password },
     }),
@@ -60,7 +60,7 @@ export async function signUp(params: {
 }): Promise<{ codeSentTo: string | undefined }> {
   const res = await client.send(
     new SignUpCommand({
-      ClientId: legacyPool.clientId,
+      ClientId: cognito.clientId,
       Username: params.email,
       Password: params.password,
       UserAttributes: [{ Name: 'email', Value: params.email }],
@@ -77,7 +77,7 @@ export async function signUp(params: {
 export async function confirmSignUp(email: string, code: string): Promise<void> {
   await client.send(
     new ConfirmSignUpCommand({
-      ClientId: legacyPool.clientId,
+      ClientId: cognito.clientId,
       Username: email,
       ConfirmationCode: code,
     }),
