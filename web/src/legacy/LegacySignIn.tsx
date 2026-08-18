@@ -40,6 +40,11 @@ export function LegacySignIn() {
         В старой базе 50 пользователей: <code>user01@example.com</code> … <code>user50@example.com</code>,
         пароль <code>LegacyPassNN!</code> (номер совпадает с логином). В Cognito их нет — до первого входа.
       </p>
+      <p className="hint">
+        Форма никуда не редиректит: пароль уходит прямо на API Cognito, а тот спрашивает Lambda.
+        Если адресная строка сменилась на <code>amazoncognito.com</code> — это вкладка задания 1,
+        там миграции нет.
+      </p>
 
       <form onSubmit={submit}>
         <label>

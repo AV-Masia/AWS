@@ -72,6 +72,12 @@ function OidcDemo() {
           Authorization code + PKCE: пароль вводится на домене Cognito, приложение его не видит
           никогда и получает только подписанный токен.
         </p>
+        <p className="warning">
+          Это отдельный пул задания 1 (<code>{cognito.userPoolId}</code>) — без Lambda-триггеров.
+          Легаси-пользователи <code>userNN@example.com</code> здесь <strong>не войдут</strong>:
+          миграция живёт в пуле задания 2, на вкладке выше. Кнопка ниже уводит на страницу входа
+          Cognito, и это нормально — так работает задание 1.
+        </p>
         <button type="button" onClick={() => void auth.signinRedirect()}>
           Войти
         </button>
