@@ -55,7 +55,8 @@ IaC обязателен, ручная настройка через консо�
 Проверено 18.08.2026. Фактические ID: пул `eu-central-1_F3JBMc9Ld`, app client `jooc52jcone06i98bhme7anno`.
 
 - [~] `terraform apply` поднимает всё: пул, app client, 2 Lambda, RDS, секрет, VPC endpoint, лог-группы,
-      log delivery — **16 ресурсов**, `terraform plan` после → `No changes`.
+      log delivery — **25 ресурсов** под управлением (плюс 7 data-источников),
+      `terraform plan` после → `No changes`.
       **Хвост:** apply шёл инкрементально. Полный прогон с нуля **до** показа делать нельзя:
       новый пул получит другой ID, и придётся переписывать `.env.production`, README и пересобирать
       Pages. Проверяем после показа заказчика, вместе с `destroy`
@@ -240,9 +241,12 @@ short-term trial offers»* ([Choosing a plan](https://docs.aws.amazon.com/awsacc
       и права на логи. Меньше прав и никакого риска не уложиться в 5 секунд на холодном старте
 - [x] `triggerSource !== 'PreSignUp_SignUp'` → вернуть событие без изменений (не ломать
       `PreSignUp_AdminCreateUser` и `PreSignUp_ExternalProvider`)
-- [x] Не искать здесь конфликт с миграцией: пользователей, созданных триггером миграции, Cognito
-      через pre sign-up не проводит (в списке источников этого триггера только `SignUp`,
-      `AdminCreateUser` и первый вход федеративного юзера)
+- [x] **Проверено на фактах, вышло наоборот, чем я предполагала:** миграция **вызывает** pre-signup
+      триггер — с источником `PreSignUp_AdminCreateUser`, через секунду после каждой успешной
+      миграции (сверено по таймстампам в CloudWatch 18.08.2026). Cognito проводит созданного
+      триггером пользователя как «созданного администратором».
+      Значит фильтр по `triggerSource` — не перестраховка, а обязательное условие: без него
+      honeypot блокировал бы **каждую** миграцию, потому что `clientMetadata` в этих событиях нет
 - [x] Honeypot: `clientMetadata.phone_confirm` непустой → `throw new Error('Automated traffic detected')`
 - [x] Тайминг: `elapsed = Date.now() - Number(clientMetadata.form_rendered_at)`; `0 <= elapsed < 1500` → тот же
       `throw`. `elapsed` отрицательный или > 24 ч, поле отсутствует или не число → **не блокируем**,
