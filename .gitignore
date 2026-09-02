@@ -1,6 +1,7 @@
 # Сборки Lambda-пакетов и зависимости функций
 infra/build/
 infra-*/build/
+infra-*/lambda/*.zip
 lambda/**/node_modules/
 scripts/node_modules/
 
