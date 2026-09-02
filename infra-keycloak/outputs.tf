@@ -45,3 +45,10 @@ output "keycloak_admin_cli_client_secret" {
   value       = keycloak_openid_client.admin_cli.client_secret
   sensitive   = true
 }
+
+# --- Собственный мок-backend с JWT-авторайзером на Keycloak (api_mock.tf) --------
+
+output "mock_backend_url" {
+  description = "Базовый URL собственного тестового API Gateway (GET /profile), защищённого JWT-авторайзером на Keycloak"
+  value       = aws_apigatewayv2_api.backend.api_endpoint
+}
