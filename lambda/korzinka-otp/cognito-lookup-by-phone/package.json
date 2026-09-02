@@ -1,0 +1,9 @@
+{
+  "name": "cognito-lookup-by-phone",
+  "private": true,
+  "type": "module",
+  "description": "Мост миграции Korzinka Cognito -> Keycloak: поиск пользователя в Cognito по номеру телефона.",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.658.0"
+  }
+}

@@ -1,0 +1,17 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>local</groupId>
+  <artifactId>keycloak-aurora-iam-deps</artifactId>
+  <version>1.0</version>
+  <dependencies>
+    <!-- Оборачивает стандартный postgresql-драйвер: перед каждым новым
+         соединением сам вызывает RDS IAM auth и генерирует токен вместо
+         статического пароля. Нужен, потому что этот Aurora-кластер
+         принимает только IAM-аутентификацию (Express-режим без VPC). -->
+    <dependency>
+      <groupId>software.amazon.jdbc</groupId>
+      <artifactId>aws-advanced-jdbc-wrapper</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+  </dependencies>
+</project>

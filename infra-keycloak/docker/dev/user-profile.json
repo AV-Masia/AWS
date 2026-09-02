@@ -1,0 +1,26 @@
+{
+  "unmanagedAttributePolicy": "ENABLED",
+  "attributes": [
+    {
+      "name": "username",
+      "displayName": "${username}",
+      "permissions": { "view": ["admin", "user"], "edit": ["admin", "user"] }
+    },
+    {
+      "name": "email",
+      "displayName": "${email}",
+      "permissions": { "view": ["admin", "user"], "edit": ["admin", "user"] },
+      "validations": { "email": {} }
+    },
+    {
+      "name": "firstName",
+      "displayName": "${firstName}",
+      "permissions": { "view": ["admin", "user"], "edit": ["admin", "user"] }
+    },
+    {
+      "name": "lastName",
+      "displayName": "${lastName}",
+      "permissions": { "view": ["admin", "user"], "edit": ["admin", "user"] }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Скопировать в terraform.tfvars и при желании поменять размеры/образ.
+# Значения по умолчанию в variables.tf уже рабочие для демо.
+
+# keycloak_image_tag  = "aurora-iam-v1"
+# redis_node_type     = "cache.t4g.micro"
+
+# Тестовый реалм Korzinka — обязательные значения, дефолтов нет намеренно.
+# client_id/secret — тот же проект Google Cloud, что зарегистрирован в
+# консоли AWS Cognito для текущего Hosted UI (Google identity provider).
+# google_idp_client_id     = "xxxxxxxx.apps.googleusercontent.com"
+# google_idp_client_secret = "xxxxxxxx"

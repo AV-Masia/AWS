@@ -1,0 +1,4 @@
+# Скопировать в terraform.tfvars (не коммитить, см. AWS/.gitignore).
+# Тот же Google Cloud проект, что зарегистрирован для прод Cognito Hosted UI Korzinka.
+# google_idp_client_id     = "xxxxxxxx.apps.googleusercontent.com"
+# google_idp_client_secret = "xxxxxxxx"

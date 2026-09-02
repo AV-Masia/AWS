@@ -1,4 +1,18 @@
 # Сборки Lambda-пакетов и зависимости функций
 infra/build/
-lambda/*/node_modules/
+infra-*/build/
+lambda/**/node_modules/
 scripts/node_modules/
+
+# Terraform state/секреты/провайдеры — не были в .gitignore, ничего из этого
+# ещё не закоммичено (проверено git status), но локально уже накопилось,
+# поэтому добавляем сейчас, до первого коммита этих файлов.
+**/.terraform/
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/terraform.tfvars
+**/tfplan*
+**/.env
+
+# Локальные настройки IDE
+.vscode/
