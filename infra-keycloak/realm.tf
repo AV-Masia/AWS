@@ -97,15 +97,38 @@ resource "keycloak_openid_client" "mobile" {
   web_origins         = ["+"]
 }
 
+# Кастомный флоу первого входа через брокера: автоматически связывает
+# Google-аккаунт с существующим пользователем по совпадению email (trust_email = true)
+# БЕЗ запроса пароля Keycloak (т.к. у пользователей нет пароля в Keycloak).
+resource "keycloak_authentication_flow" "first_broker_login_auto_link" {
+  realm_id = keycloak_realm.korzinka.id
+  alias    = "first broker login auto link"
+}
+
+resource "keycloak_authentication_execution" "detect_existing_user" {
+  realm_id          = keycloak_realm.korzinka.id
+  parent_flow_alias = keycloak_authentication_flow.first_broker_login_auto_link.alias
+  authenticator     = "idp-detect-existing-broker-user"
+  requirement       = "REQUIRED"
+}
+
+resource "keycloak_authentication_execution" "auto_link" {
+  realm_id          = keycloak_realm.korzinka.id
+  parent_flow_alias = keycloak_authentication_flow.first_broker_login_auto_link.alias
+  authenticator     = "idp-auto-link"
+  requirement       = "REQUIRED"
+  depends_on        = [keycloak_authentication_execution.detect_existing_user]
+}
+
 # Google identity provider broker — заменяет "Google" как соцвход в Cognito
 # Hosted UI. client_id/secret — тот же проект Google Cloud, значения только
 # через terraform.tfvars (не коммитить).
 resource "keycloak_oidc_google_identity_provider" "google" {
-  realm         = keycloak_realm.korzinka.id
-  client_id     = var.google_idp_client_id
-  client_secret = var.google_idp_client_secret
-
-  trust_email = true
+  realm                        = keycloak_realm.korzinka.id
+  client_id                    = var.google_idp_client_id
+  client_secret                = var.google_idp_client_secret
+  trust_email                  = true
+  first_broker_login_flow_alias = keycloak_authentication_flow.first_broker_login_auto_link.alias
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
