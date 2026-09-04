@@ -1,7 +1,5 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# Тестовый реалм для миграции Korzinka с Cognito на Keycloak (см. korzinka/,
-# ветка keycloak). Существует ПАРАЛЛЕЛЬНО с Cognito — ничего в текущем
-# Cognito-пуле/API Gateway не трогает.
+# Реалм для авторизации Korzinka на Keycloak (см. korzinka/).
 # ──────────────────────────────────────────────────────────────────────────────
 
 resource "keycloak_realm" "korzinka" {
@@ -25,13 +23,10 @@ resource "keycloak_realm" "korzinka" {
 resource "keycloak_realm_user_profile" "korzinka" {
   realm_id = keycloak_realm.korzinka.id
 
-  # Найдено при тесте моста миграции (см. korzinka/docs/keycloak-migration/
-  # CHANGELOG.md, "Мост миграции по номеру телефона"): без этого Keycloak
-  # молча отбрасывает любые атрибуты, не объявленные ниже явно (attributes
-  # блоков) — в том числе phone_number и legacy_cognito_sub, которые
-  # мобильное приложение/мост миграции проставляют через Admin API. С
-  # "ENABLED" произвольные атрибуты сохраняются, не будучи объявленными
-  # по отдельности.
+  # Без этого Keycloak молча отбрасывает любые атрибуты, не объявленные ниже явно
+  # (attributes блоков) — в том числе phone_number, которые мобильное приложение
+  # проставляет через API. С "ENABLED" произвольные атрибуты сохраняются,
+  # не будучи объявленными по отдельности.
   unmanaged_attribute_policy = "ENABLED"
 
   attribute {
@@ -80,8 +75,8 @@ resource "keycloak_realm_user_profile" "korzinka" {
 }
 
 # Публичный клиент мобильного приложения. standard_flow — для Google-брокера
-# (authorization code + PKCE, тот же redirect, что у Cognito), direct_access_grants —
-# для мокнутого OTP-логина (ROPC, см. korzinka/lib/services/keycloak_auth_service.dart).
+# (authorization code + PKCE), direct_access_grants —
+# для OTP-логина (ROPC, см. korzinka/lib/services/keycloak_auth_service.dart).
 resource "keycloak_openid_client" "mobile" {
   realm_id  = keycloak_realm.korzinka.id
   client_id = "korzinka-mobile"
@@ -120,8 +115,8 @@ resource "keycloak_authentication_execution" "auto_link" {
   depends_on        = [keycloak_authentication_execution.detect_existing_user]
 }
 
-# Google identity provider broker — заменяет "Google" как соцвход в Cognito
-# Hosted UI. client_id/secret — тот же проект Google Cloud, значения только
+# Google identity provider broker — обеспечивает вход через Google.
+# client_id/secret — проект Google Cloud, значения только
 # через terraform.tfvars (не коммитить).
 resource "keycloak_oidc_google_identity_provider" "google" {
   realm                        = keycloak_realm.korzinka.id
@@ -136,7 +131,7 @@ resource "keycloak_oidc_google_identity_provider" "google" {
 # приложение использует его, чтобы на лету завести пользователя по номеру
 # телефона перед мокнутым ROPC-логином (в Keycloak нет встроенного SMS OTP).
 # В проде креды этого клиента НЕ должны попадать в мобильный билд — реальная
-# миграция потребует отдельный backend-эндпоинт для provisioning вместо этого.
+# аутентификация использует встроенный OTP SPI эндпоинт.
 # ──────────────────────────────────────────────────────────────────────────────
 resource "keycloak_openid_client" "admin_cli" {
   realm_id  = keycloak_realm.korzinka.id
@@ -170,25 +165,16 @@ resource "keycloak_openid_client_service_account_role" "admin_cli_manage_users" 
 }
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Мост миграции по номеру телефона — SPI-версия (см.
-# docker/cognito-migration-federation/, korzinka/docs/keycloak-migration/
-# MIGRATION.md). Заменяет вызов admin_cli из мобильного приложения выше:
-# lookup в legacy Cognito и провижининг пользователя теперь делает сам
-# Keycloak при первом ROPC-логине по неизвестному номеру телефона.
-#
-# admin_cli-клиент выше пока не удалён — удаление делаем отдельным,
-# осознанным шагом после того, как это заработает end-to-end (см. журнал
-# миграции), чтобы был откат, если SPI не заработает сразу.
+# Провайдер создания пользователей по номеру телефона (см.
+# docker/korzinka-auth-provider/). Провижининг пользователя делает сам
+# Keycloak при первом ROPC-логине или OTP-запросе по неизвестному номеру.
 # ──────────────────────────────────────────────────────────────────────────────
-resource "keycloak_custom_user_federation" "cognito_migration" {
-  name        = "cognito-migration-federation"
+resource "keycloak_custom_user_federation" "korzinka_phone_storage" {
+  name        = "korzinka-phone-storage"
   realm_id    = keycloak_realm.korzinka.id
-  provider_id = "cognito-migration-federation"
+  provider_id = "korzinka-phone-storage"
   enabled     = true
   priority    = 0
-
-  config = {
-    lookupUrl    = var.cognito_lookup_url
-    lookupSecret = var.cognito_lookup_secret
-  }
 }
+
+

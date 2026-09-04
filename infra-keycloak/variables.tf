@@ -72,22 +72,22 @@ variable "desired_count" {
   default     = 1
 }
 
-# --- Korzinka test-migration realm -------------------------------------------------
+# --- Korzinka realm -------------------------------------------------
 
 variable "korzinka_realm_name" {
-  description = "Имя тестового реалма под миграцию Korzinka с Cognito"
+  description = "Имя реалма Keycloak для приложения Korzinka"
   type        = string
   default     = "korzinka-test"
 }
 
 variable "korzinka_mobile_redirect_uri" {
-  description = "Redirect URI мобильного клиента (совпадает с текущим Cognito-клиентом)"
+  description = "Redirect URI мобильного клиента Korzinka"
   type        = string
   default     = "myapp://callback"
 }
 
 variable "google_idp_client_id" {
-  description = "Google OAuth client_id для брокера входа через Google в Keycloak (тот же проект Google Cloud, что и у текущего Cognito Hosted UI)"
+  description = "Google OAuth client_id для брокера входа через Google в Keycloak"
   type        = string
   sensitive   = true
 }
@@ -98,21 +98,10 @@ variable "google_idp_client_secret" {
   sensitive   = true
 }
 
-# --- SPI моста миграции Cognito -> Keycloak (см. docker/cognito-migration-federation/) ----
-
-variable "cognito_lookup_url" {
-  description = "Function URL Lambda cognito-lookup-by-phone (AWS/infra-korzinka-cognito, output migration_bridge_lookup_url)"
-  type        = string
-}
-
-variable "cognito_lookup_secret" {
-  description = "Shared secret для заголовка X-Lookup-Secret (output migration_bridge_lookup_secret) — TEST ONLY"
-  type        = string
-  sensitive   = true
-}
 
 variable "mock_otp_code" {
   description = "Мок-код вместо реального SMS OTP, выставляется SPI как пароль новых пользователей — TEST ONLY"
   type        = string
   default     = "123456"
 }
+

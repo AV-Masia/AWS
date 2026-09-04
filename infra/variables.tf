@@ -7,7 +7,7 @@ variable "region" {
 variable "project" {
   description = "Префикс имён и тег для всех ресурсов демо"
   type        = string
-  default     = "cognito-legacy-migration"
+  default     = "legacy-migration"
 }
 
 variable "my_ip" {

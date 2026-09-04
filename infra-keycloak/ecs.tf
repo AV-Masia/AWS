@@ -154,12 +154,13 @@ resource "aws_ecs_task_definition" "keycloak" {
         { name = "AWS_REGION", value = var.region },
         # Фиксирует issuer/frontend URL в выданных токенах на публичный ALB-адрес
         # независимо от Host-заголовка запроса — иначе внутренние запросы
-        # (например, ROPC-обмен внутри cognito-otp/verify через localhost:8080)
+        # (например, ROPC-обмен внутри otp/verify через localhost:8080)
         # выпускают токены с iss=http://localhost:8080/..., которые backend не
-        # может провалидировать (см. CHANGELOG.md, "iss=localhost baг").
+        # может провалидировать.
         # Полный URL (со схемой) — Keycloak 26 поддерживает такой формат для
         # hostname и им сразу фиксируется http-схема (ALB слушает только :80,
         # без этого Keycloak по умолчанию считает issuer https).
+
         { name = "KC_HOSTNAME", value = "http://${aws_lb.keycloak.dns_name}" },
         { name = "KC_DB", value = "postgres" },
         # aws-wrapper: JDBC-обёртка генерирует IAM auth token при каждом новом

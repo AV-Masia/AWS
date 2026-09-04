@@ -4,7 +4,6 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      # >= 6.5.0 — в этой версии появился aws_cognito_log_delivery_configuration
       version = "~> 6.5"
     }
     random = {

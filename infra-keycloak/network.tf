@@ -1,7 +1,8 @@
-# Своё VPC не поднимаем — берём default, как и в infra/ (задание Cognito).
+# Своё VPC не поднимаем — берём default.
 data "aws_vpc" "default" {
   default = true
 }
+
 
 data "aws_subnets" "default" {
   filter {

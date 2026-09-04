@@ -1,11 +1,8 @@
 # --- Собственный API Gateway с JWT-авторайзером на Keycloak ---------------------
 #
-# Реальный backend (owi2dv5fta.execute-api.eu-north-1.amazonaws.com) живёт в
-# чужом AWS-аккаунте и до сих пор валидирует токены против старого Cognito
-# User Pool — мы не можем поправить его авторайзер отсюда. Этот стек — свой
-# тестовый HTTP API в аккаунте infra-keycloak с JWT authorizer, который
+# Тестовый HTTP API в аккаунте infra-keycloak с JWT authorizer, который
 # проверяет issuer/audience/подпись/exp токена Keycloak НА УРОВНЕ ГЕЙТВЕЯ
-# (до вызова Lambda) — так подтверждаем, что токен из cognito-otp/verify
+# (до вызова Lambda) — так подтверждаем, что токен из /otp/verify
 # реально принимается ресурс-сервером, защищённым Keycloak JWKS.
 #
 # Роут: GET /profile -> Lambda-мок (lambda/mock-profile) с данными из claims

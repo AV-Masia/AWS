@@ -1,9 +1,0 @@
-{
-  "name": "pre-signup-honeypot",
-  "private": true,
-  "type": "module",
-  "description": "Cognito Pre Sign-up trigger: honeypot и проверка тайминга формы вместо капчи",
-  "dependencies": {
-    "@aws-lambda-powertools/logger": "^2.13.0"
-  }
-}

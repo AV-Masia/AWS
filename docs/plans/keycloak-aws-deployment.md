@@ -3,8 +3,8 @@
 ## Что нужно сделать
 
 Развернуть Keycloak в AWS, подключить его к Aurora (PostgreSQL-совместимая, вместо БД
-внутри контейнера) и к кэшу (ElastiCache Redis). Код — в `infra-keycloak/`, отдельно от
-`infra/` (там Cognito, другое задание).
+внутри контейнера) и к кэшу (ElastiCache Redis). Код — в `infra-keycloak/`.
+
 
 ## Архитектура
 

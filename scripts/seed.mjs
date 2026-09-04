@@ -11,9 +11,9 @@ import bcrypt from 'bcryptjs'
 import { connect } from './legacy-db.mjs'
 
 const USER_COUNT = 50
-// 10 раундов — компромисс: так хэшируют в реальных приложениях, и проверка
-// укладывается в 5-секундный лимит Cognito на Lambda-триггер
+// 10 раундов — компромисс: стандартное хэширование для проверки паролей
 const BCRYPT_ROUNDS = 10
+
 
 const SCHEMA = `
   create table if not exists legacy_users (

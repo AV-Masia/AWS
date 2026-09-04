@@ -23,25 +23,3 @@ output "lambda_security_group_id" {
   value       = aws_security_group.lambda.id
 }
 
-output "user_pool_id" {
-  description = "ID нового пула — идёт в конфиг фронтенда"
-  value       = aws_cognito_user_pool.main.id
-}
-
-output "user_pool_client_id" {
-  description = "ID публичного app client — идёт в конфиг фронтенда"
-  value       = aws_cognito_user_pool_client.web.id
-}
-
-output "managed_login_domain" {
-  description = "Домен страницы входа Cognito на новом пуле"
-  value       = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.region}.amazoncognito.com"
-}
-
-output "lambda_function_names" {
-  description = "Имена функций — для aws lambda invoke и aws logs tail"
-  value = {
-    user_migration = aws_lambda_function.user_migration.function_name
-    pre_signup     = aws_lambda_function.pre_signup.function_name
-  }
-}

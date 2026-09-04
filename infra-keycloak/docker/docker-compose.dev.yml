@@ -1,11 +1,10 @@
-# Локальный стенд для проверки cognito-migration-federation SPI без
-# rebuild+push+deploy на ECS (см. korzinka/docs/keycloak-migration/MIGRATION.md).
-# SPI смотрит на уже задеплоенную реальную Lambda cognito-lookup-by-phone
-# (публичный Function URL) — см. dev/bootstrap-realm.sh.
+# Локальный стенд для проверки korzinka-auth-provider SPI без
+# rebuild+push+deploy на ECS.
 #
 # Запуск:
 #   docker compose -f docker-compose.dev.yml up --build -d
-#   COGNITO_LOOKUP_URL=... COGNITO_LOOKUP_SECRET=... ./dev/bootstrap-realm.sh
+#   ./dev/bootstrap-realm.sh
+
 
 services:
   postgres:

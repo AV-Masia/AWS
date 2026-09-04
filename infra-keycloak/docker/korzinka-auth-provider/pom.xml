@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.korzinka</groupId>
+  <artifactId>korzinka-auth-provider</artifactId>
+  <version>1.0</version>
+  <packaging>jar</packaging>
+
+  <!--
+    Keycloak User Storage SPI & OTP Provider для Korzinka по номеру телефона.
+    Все зависимости — provided: они уже есть на classpath запущенного
+    Keycloak 26 (server-spi*, jackson-databind), поэтому jar остаётся тонким
+    и копируется в /opt/keycloak/providers/ (см. Dockerfile).
+  -->
+
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <keycloak.version>26.0.0</keycloak.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-server-spi</artifactId>
+      <version>${keycloak.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- В Keycloak 26 UserStorageProvider/UserStorageProviderFactory переехали
+         из keycloak-server-spi-private в keycloak-model-storage(-private) —
+         проверено сборкой образа, а не по памяти/документации. -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-model-storage</artifactId>
+      <version>${keycloak.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-model-storage-private</artifactId>
+      <version>${keycloak.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
+      <version>${keycloak.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- RealmResourceProvider/Factory (кастомные REST-эндпоинты /otp/*) -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-services</artifactId>
+      <version>${keycloak.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>3.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.18.0</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+</project>
